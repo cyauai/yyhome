@@ -79,7 +79,7 @@ dp = Dispatcher(bot)
 
 
 @dp.message_handler(commands=['add'])
-async def welcome(message: types.Message):
+async def add(message: types.Message):
     user = get_user(message)
     point = int(message['text'].replace('/add ', ""))
     replace_score(user, point)
@@ -87,17 +87,18 @@ async def welcome(message: types.Message):
 
 
 @dp.message_handler(commands=['score'])
-async def welcome(message: types.Message):
+async def score(message: types.Message):
+    print(message)
     await message.answer(get_score())
 
 
 @dp.message_handler(commands=['money'])
-async def welcome(message: types.Message):
+async def money(message: types.Message):
     await message.answer(get_total())
 
 
 @dp.message_handler(commands=['spend'])
-async def welcome(message: types.Message):
+async def spend(message: types.Message):
     user = get_user(message)
     amount = float(message['text'].replace('/spend ', ""))
     replace_money(user, amount)
@@ -105,9 +106,8 @@ async def welcome(message: types.Message):
 
 
 @dp.message_handler(commands=['payjor'])
-async def welcome(message: types.Message):
+async def payjor(message: types.Message):
     await message.answer(pay_jor())
-
 
 answers = []  # store the answers they have given
 
