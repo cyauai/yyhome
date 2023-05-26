@@ -2,6 +2,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from bson import ObjectId
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+import os
 
 
 def get_total():
@@ -67,6 +68,7 @@ def get_score():
     return get_doc()['score']
 
 
+port = os.getenv('PORT', default=8000)
 uri = "mongodb+srv://dbUser:dbUser@yyhome.8qwk7gw.mongodb.net/?retryWrites=true&w=majority"
 
 # Create a new client and connect to the server
@@ -76,6 +78,9 @@ document = collection.find()[0]
 query = {'_id': ObjectId('646f99c4428dd0fcd5042c6a')}
 bot = Bot(token='6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ')
 dp = Dispatcher(bot)
+answers = []  # store the answers they have given
+executor.start_webhook(port=port)
+executor.start_polling(dp)
 
 
 @dp.message_handler(commands=['add'])
@@ -108,7 +113,3 @@ async def spend(message: types.Message):
 @dp.message_handler(commands=['payjor'])
 async def payjor(message: types.Message):
     await message.answer(pay_jor())
-
-answers = []  # store the answers they have given
-
-executor.start_polling(dp)
