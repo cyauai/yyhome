@@ -1,7 +1,7 @@
 import asyncio
 
 from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, Updater
 from bson import ObjectId
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -108,17 +108,23 @@ WEBAPP_HOST = '0.0.0.0'
 
 if __name__ == '__main__':
     print("HELLO BOT START")
-    port = int(os.environ.get('PORT', '5001'))
+    port = int(os.environ.get('PORT', '5000'))
     uri = "mongodb+srv://dbUser:dbUser@yyhome.8qwk7gw.mongodb.net/?retryWrites=true&w=majority"
     # Create a new client and connect to the server
     client = MongoClient(uri, server_api=ServerApi('1'))
     collection = client["yydb"]["yycollection"]
     document = collection.find()[0]
     query = {'_id': ObjectId('646f99c4428dd0fcd5042c6a')}
-    application = Application.builder().token(BOT_TOKEN).build()
-    application.add_handler(CommandHandler('add', add))
-    application.add_handler(CommandHandler('money', money))
-    application.add_handler(CommandHandler('payjor', payjor))
-    application.add_handler(CommandHandler('score', score))
-    application.add_handler(CommandHandler('spend', spend))
-    application.run_polling()
+    # Start the bot on the correct IP and port
+    updater = Updater(BOT_TOKEN, use_context=True)
+    updater.start_webhook(listen="0.0.0.0", port=port, url_path=BOT_TOKEN)
+    updater.bot.set_webhook(url=f"https://yy-home.herokuapp.com/{BOT_TOKEN}")
+    updater.add_handler(CommandHandler('add', add))
+    updater.add_handler(CommandHandler('money', money))
+    updater.add_handler(CommandHandler('payjor', payjor))
+    updater.add_handler(CommandHandler('score', score))
+    updater.add_handler(CommandHandler('spend', spend))
+    updater.idle()
+    # application = Application.builder().token(BOT_TOKEN).build()
+
+    # application.run_polling()
