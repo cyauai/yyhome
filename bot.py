@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram import Bot, Dispatcher, executor, types
 from bson import ObjectId
 from pymongo.mongo_client import MongoClient
@@ -68,6 +70,15 @@ def get_score():
     return get_doc()['score']
 
 
+async def on_startup(dispatcher):
+    await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
+
+WEBHOOK_HOST = 'yy-home.herokuapp.com'
+BOT_TOKEN = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
+WEBAPP_HOST = '0.0.0.0'
+WEBHOOK_PATH = f'/webhook/{BOT_TOKEN}'
+WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
+
 if __name__ == '__main__':
     print("HELLO BOT START")
     port = int(os.environ.get('PORT', '5001'))
@@ -81,12 +92,13 @@ if __name__ == '__main__':
     bot = Bot(token=token)
     dp = Dispatcher(bot)
     answers = []  # store the answers they have given
-    executor.start_webhook(port=port, dispatcher=dp, webhook_path=f'/webhook/{token}')
+    executor.start_webhook(port=port, dispatcher=dp, webhook_path=f'/webhook/{token}', on_startup=on_startup)
     # executor.start_polling(dp)
 
 
 @dp.message_handler(commands=['add'])
 async def add(message: types.Message):
+    await asyncio.sleep(2)
     user = get_user(message)
     point = int(message['text'].replace('/add ', ""))
     replace_score(user, point)
@@ -95,17 +107,20 @@ async def add(message: types.Message):
 
 @dp.message_handler(commands=['score'])
 async def score(message: types.Message):
+    await asyncio.sleep(2)
     print(message)
     await message.answer(get_score())
 
 
 @dp.message_handler(commands=['money'])
 async def money(message: types.Message):
+    await asyncio.sleep(2)
     await message.answer(get_total())
 
 
 @dp.message_handler(commands=['spend'])
 async def spend(message: types.Message):
+    await asyncio.sleep(2)
     user = get_user(message)
     amount = float(message['text'].replace('/spend ', ""))
     replace_money(user, amount)
@@ -114,4 +129,5 @@ async def spend(message: types.Message):
 
 @dp.message_handler(commands=['payjor'])
 async def payjor(message: types.Message):
+    await asyncio.sleep(2)
     await message.answer(pay_jor())
