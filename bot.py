@@ -30,7 +30,7 @@ def pay_jor():
 def replace_money(name, amount):
     doc = collection.find()[0]
     money = doc['money']
-    money[name] = money[name] + amount/2
+    money[name] = money[name] + amount / 2
     yin_amount = money['yin']
     yo_amount = money['yo']
     if yin_amount >= yo_amount:
@@ -73,6 +73,7 @@ def get_score():
 async def on_startup(dispatcher):
     await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
 
+
 WEBHOOK_HOST = 'yy-home.herokuapp.com'
 BOT_TOKEN = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
 WEBAPP_HOST = '0.0.0.0'
@@ -96,6 +97,7 @@ if __name__ == '__main__':
     # executor.start_polling(dp)
 
 
+@dp.async_task
 @dp.message_handler(commands=['add'])
 async def add(message: types.Message):
     await asyncio.sleep(2)
@@ -105,6 +107,7 @@ async def add(message: types.Message):
     await message.answer(get_score())
 
 
+@dp.async_task @ dp.async_task
 @dp.message_handler(commands=['score'])
 async def score(message: types.Message):
     await asyncio.sleep(2)
@@ -112,12 +115,14 @@ async def score(message: types.Message):
     await message.answer(get_score())
 
 
+@dp.async_task
 @dp.message_handler(commands=['money'])
 async def money(message: types.Message):
     await asyncio.sleep(2)
     await message.answer(get_total())
 
 
+@dp.async_task
 @dp.message_handler(commands=['spend'])
 async def spend(message: types.Message):
     await asyncio.sleep(2)
@@ -127,6 +132,7 @@ async def spend(message: types.Message):
     await message.answer(get_total())
 
 
+@dp.async_task
 @dp.message_handler(commands=['payjor'])
 async def payjor(message: types.Message):
     await asyncio.sleep(2)
