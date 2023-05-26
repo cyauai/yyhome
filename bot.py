@@ -116,15 +116,15 @@ if __name__ == '__main__':
     document = collection.find()[0]
     query = {'_id': ObjectId('646f99c4428dd0fcd5042c6a')}
     # Start the bot on the correct IP and port
-    updater = Updater(BOT_TOKEN, use_context=True)
-    updater.start_webhook(listen="0.0.0.0", port=port, url_path=BOT_TOKEN)
-    updater.bot.set_webhook(url=f"https://yy-home.herokuapp.com/{BOT_TOKEN}")
-    updater.add_handler(CommandHandler('add', add))
-    updater.add_handler(CommandHandler('money', money))
-    updater.add_handler(CommandHandler('payjor', payjor))
-    updater.add_handler(CommandHandler('score', score))
-    updater.add_handler(CommandHandler('spend', spend))
-    updater.idle()
+    application = Application.builder().token(BOT_TOKEN).build()
+    application.updater.start_webhook(listen="0.0.0.0", port=port, url_path=BOT_TOKEN)
+    application.updater.bot.set_webhook(url=f"https://yy-home.herokuapp.com/{BOT_TOKEN}")
+    application.add_handler(CommandHandler('add', add))
+    application.add_handler(CommandHandler('money', money))
+    application.add_handler(CommandHandler('payjor', payjor))
+    application.add_handler(CommandHandler('score', score))
+    application.add_handler(CommandHandler('spend', spend))
+    application.idle()
     # application = Application.builder().token(BOT_TOKEN).build()
 
     # application.run_polling()
