@@ -103,10 +103,7 @@ async def payjor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(pay_jor())
 
 
-BOT_TOKEN = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
-WEBAPP_HOST = '0.0.0.0'
-
-if __name__ == '__main__':
+async def set_up():
     print("HELLO BOT START")
     port = int(os.environ.get('PORT', '5000'))
     uri = "mongodb+srv://dbUser:dbUser@yyhome.8qwk7gw.mongodb.net/?retryWrites=true&w=majority"
@@ -117,8 +114,6 @@ if __name__ == '__main__':
     query = {'_id': ObjectId('646f99c4428dd0fcd5042c6a')}
     # Start the bot on the correct IP and port
     application = Application.builder().token(BOT_TOKEN).build()
-    await application.updater.start_webhook(listen="0.0.0.0", port=port, url_path=BOT_TOKEN)
-    await application.updater.bot.set_webhook(url=f"https://yy-home.herokuapp.com/{BOT_TOKEN}")
     application.add_handler(CommandHandler('add', add))
     application.add_handler(CommandHandler('money', money))
     application.add_handler(CommandHandler('payjor', payjor))
@@ -126,6 +121,13 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('spend', spend))
     application.run_polling()
     application.idle()
+
+
+BOT_TOKEN = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
+WEBAPP_HOST = '0.0.0.0'
+
+if __name__ == '__main__':
+    asyncio.run(set_up())
     # application = Application.builder().token(BOT_TOKEN).build()
 
     # application.run_polling()
