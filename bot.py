@@ -72,6 +72,9 @@ def get_score():
 
 
 async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) == 0:
+        await update.message.reply_text("請輸入分數")
+        return
     user = get_user(update.message.from_user)
     point = int(update.message.text.replace('/add ', ""))
     replace_score(user, point)
@@ -87,6 +90,9 @@ async def money(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def spend(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) == 0:
+        await update.message.reply_text("請輸入金額")
+        return
     user = get_user(update.message.from_user)
     amount = float(update.message.text.replace('/spend ', ""))
     replace_money(user, amount)
