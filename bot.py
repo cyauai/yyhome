@@ -1,6 +1,7 @@
 import asyncio
 
-from aiogram import Bot, Dispatcher, executor, types
+from telegram import ForceReply, Update
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from bson import ObjectId
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -52,7 +53,7 @@ def replace_score(name, point):
 
 
 def get_user(msg):
-    if msg['from']['first_name'] == '.':
+    if msg['first_name'] == '.':
         return 'yin'
     else:
         return 'yo'
@@ -70,15 +71,34 @@ def get_score():
     return get_doc()['score']
 
 
-async def on_startup(dispatcher):
-    await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
+async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = get_user(update.message.from_user)
+    point = int(update.message.text.replace('/add ', ""))
+    replace_score(user, point)
+    update.message.reply_text(get_score())
 
 
-WEBHOOK_HOST = 'yy-home.herokuapp.com'
+async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(get_score())
+
+
+async def money(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(get_total())
+
+
+async def spend(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = get_user(update.message.from_user)
+    amount = float(update.message.text.replace('/spend ', ""))
+    replace_money(user, amount)
+    await update.message.reply_text(get_total())
+
+
+async def payjor(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(pay_jor())
+
+
 BOT_TOKEN = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
 WEBAPP_HOST = '0.0.0.0'
-WEBHOOK_PATH = f'/webhook/{BOT_TOKEN}'
-WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
 
 if __name__ == '__main__':
     print("HELLO BOT START")
@@ -89,51 +109,10 @@ if __name__ == '__main__':
     collection = client["yydb"]["yycollection"]
     document = collection.find()[0]
     query = {'_id': ObjectId('646f99c4428dd0fcd5042c6a')}
-    token = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
-    bot = Bot(token=token)
-    dp = Dispatcher(bot)
-    answers = []  # store the answers they have given
-    executor.start_webhook(port=port, dispatcher=dp, webhook_path=f'/webhook/{token}', on_startup=on_startup)
-    # executor.start_polling(dp)
-
-
-@dp.async_task
-@dp.message_handler(commands=['add'])
-async def add(message: types.Message):
-    await asyncio.sleep(2)
-    user = get_user(message)
-    point = int(message['text'].replace('/add ', ""))
-    replace_score(user, point)
-    await message.answer(get_score())
-
-
-@dp.async_task @ dp.async_task
-@dp.message_handler(commands=['score'])
-async def score(message: types.Message):
-    await asyncio.sleep(2)
-    print(message)
-    await message.answer(get_score())
-
-
-@dp.async_task
-@dp.message_handler(commands=['money'])
-async def money(message: types.Message):
-    await asyncio.sleep(2)
-    await message.answer(get_total())
-
-
-@dp.async_task
-@dp.message_handler(commands=['spend'])
-async def spend(message: types.Message):
-    await asyncio.sleep(2)
-    user = get_user(message)
-    amount = float(message['text'].replace('/spend ', ""))
-    replace_money(user, amount)
-    await message.answer(get_total())
-
-
-@dp.async_task
-@dp.message_handler(commands=['payjor'])
-async def payjor(message: types.Message):
-    await asyncio.sleep(2)
-    await message.answer(pay_jor())
+    application = Application.builder().token(BOT_TOKEN).build()
+    application.add_handler(CommandHandler('add', add))
+    application.add_handler(CommandHandler('money', money))
+    application.add_handler(CommandHandler('payjor', payjor))
+    application.add_handler(CommandHandler('score', score))
+    application.add_handler(CommandHandler('spend', spend))
+    application.run_polling()
