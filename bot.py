@@ -124,6 +124,7 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('payjor', payjor))
     application.add_handler(CommandHandler('score', score))
     application.add_handler(CommandHandler('spend', spend))
+    application.run_polling()
     application.idle()
     # application = Application.builder().token(BOT_TOKEN).build()
 
