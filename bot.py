@@ -117,8 +117,8 @@ if __name__ == '__main__':
     query = {'_id': ObjectId('646f99c4428dd0fcd5042c6a')}
     # Start the bot on the correct IP and port
     application = Application.builder().token(BOT_TOKEN).build()
-    application.updater.start_webhook(listen="0.0.0.0", port=port, url_path=BOT_TOKEN)
-    application.updater.bot.set_webhook(url=f"https://yy-home.herokuapp.com/{BOT_TOKEN}")
+    await application.updater.start_webhook(listen="0.0.0.0", port=port, url_path=BOT_TOKEN)
+    await application.updater.bot.set_webhook(url=f"https://yy-home.herokuapp.com/{BOT_TOKEN}")
     application.add_handler(CommandHandler('add', add))
     application.add_handler(CommandHandler('money', money))
     application.add_handler(CommandHandler('payjor', payjor))
