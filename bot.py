@@ -1,7 +1,7 @@
 import asyncio
 
 from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, Updater
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from bson import ObjectId
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -72,9 +72,6 @@ def get_score():
 
 
 async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if len(context.args) == 0:
-        await update.message.reply_text("請輸入分數")
-        return
     user = get_user(update.message.from_user)
     point = int(update.message.text.replace('/add ', ""))
     replace_score(user, point)
@@ -90,9 +87,6 @@ async def money(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def spend(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if len(context.args) == 0:
-        await update.message.reply_text("請輸入金額")
-        return
     user = get_user(update.message.from_user)
     amount = float(update.message.text.replace('/spend ', ""))
     replace_money(user, amount)
@@ -103,16 +97,18 @@ async def payjor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(pay_jor())
 
 
-async def set_up():
+BOT_TOKEN = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
+WEBAPP_HOST = '0.0.0.0'
+
+if __name__ == '__main__':
     print("HELLO BOT START")
-    port = int(os.environ.get('PORT', '5000'))
+    port = int(os.environ.get('PORT', '5001'))
     uri = "mongodb+srv://dbUser:dbUser@yyhome.8qwk7gw.mongodb.net/?retryWrites=true&w=majority"
     # Create a new client and connect to the server
     client = MongoClient(uri, server_api=ServerApi('1'))
     collection = client["yydb"]["yycollection"]
     document = collection.find()[0]
     query = {'_id': ObjectId('646f99c4428dd0fcd5042c6a')}
-    # Start the bot on the correct IP and port
     application = Application.builder().token(BOT_TOKEN).build()
     application.add_handler(CommandHandler('add', add))
     application.add_handler(CommandHandler('money', money))
@@ -120,14 +116,3 @@ async def set_up():
     application.add_handler(CommandHandler('score', score))
     application.add_handler(CommandHandler('spend', spend))
     application.run_polling()
-    application.idle()
-
-
-BOT_TOKEN = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
-WEBAPP_HOST = '0.0.0.0'
-
-if __name__ == '__main__':
-    asyncio.run(set_up())
-    # application = Application.builder().token(BOT_TOKEN).build()
-
-    # application.run_polling()
