@@ -75,7 +75,7 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = get_user(update.message.from_user)
     point = int(update.message.text.replace('/add ', ""))
     replace_score(user, point)
-    update.message.reply_text(get_score())
+    await update.message.reply_text(get_score())
 
 
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -89,6 +89,14 @@ async def money(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def spend(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = get_user(update.message.from_user)
     amount = float(update.message.text.replace('/spend ', ""))
+    replace_money(user, amount)
+    await update.message.reply_text(get_total())
+
+
+async def spend_jor(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("SPEND JOR")
+    user = context.args[0]
+    amount = float(context.args[1])
     replace_money(user, amount)
     await update.message.reply_text(get_total())
 
@@ -115,4 +123,5 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('payjor', payjor))
     application.add_handler(CommandHandler('score', score))
     application.add_handler(CommandHandler('spend', spend))
+    application.add_handler(CommandHandler('spendjor', spend_jor))
     application.run_polling()
