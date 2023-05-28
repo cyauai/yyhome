@@ -8,6 +8,34 @@ from pymongo.server_api import ServerApi
 import os
 
 
+def str_to_float(string):
+    try:
+        result = float(string)
+    except ValueError:
+        operators = ['+', '-', '*', '/']
+        for operator in operators:
+            if operator in string:
+                values = string.split(operator)
+                if len(values) == 2:
+                    try:
+                        num1 = float(values[0])
+                        num2 = float(values[1])
+                        if operator == '+':
+                            result = num1 + num2
+                        elif operator == '-':
+                            result = num1 - num2
+                        elif operator == '*':
+                            result = num1 * num2
+                        elif operator == '/':
+                            result = num1 / num2
+                    except ValueError:
+                        raise ValueError("Invalid input string")
+                    break
+        else:
+            raise ValueError("Invalid input string")
+    return result
+
+
 def get_total():
     doc = collection.find()[0]
     money = doc['money']
@@ -91,16 +119,15 @@ async def money(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def spend(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = get_user(update.message.from_user)
-    amount = float(update.message.text.replace('/spend ', ""))
-    replace_money(user=user, amount=amount, is_split=True)
+    amount = str_to_float(update.message.text.replace('/spend ', ""))
+    replace_money(name=user, amount=amount, is_split=True)
     await update.message.reply_text(get_total())
 
 
 async def spend_no_split(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("SPEND NO SPLIT")
     user = get_user(update.message.from_user)
-    amount = float(context.args[0])
-    replace_money(user=user, amount=amount, is_split=False)
+    amount = str_to_float(context.args[0])
+    replace_money(name=user, amount=amount, is_split=False)
     await update.message.reply_text(get_total())
 
 
@@ -110,6 +137,7 @@ async def payjor(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 BOT_TOKEN = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
 WEBAPP_HOST = '0.0.0.0'
+addrs = r"Flat G, 21/F, Tower 1, The Yoho Hubm No.1 Long Lok Road, Yuen Long, N.T., HK";
 
 if __name__ == '__main__':
     print("HELLO BOT START")
@@ -127,4 +155,5 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('score', score))
     application.add_handler(CommandHandler('spend', spend))
     application.add_handler(CommandHandler('spend_no_split', spend_no_split))
+    application.add_handler(CommandHandler('address', addrs))
     application.run_polling()
