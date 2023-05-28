@@ -6,34 +6,36 @@ from bson import ObjectId
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import os
+import ast
+import operator
 
 
-def str_to_float(string):
+def safe_eval(node):
+    if isinstance(node, ast.Num):
+        return node.n
+    if isinstance(node, ast.Expression):
+        return safe_eval(node.body)
+    if isinstance(node, ast.BinOp):
+        left = safe_eval(node.left)
+        right = safe_eval(node.right)
+        if isinstance(node.op, ast.Add):
+            return operator.add(left, right)
+        if isinstance(node.op, ast.Sub):
+            return operator.sub(left, right)
+        if isinstance(node.op, ast.Mult):
+            return operator.mul(left, right)
+        if isinstance(node.op, ast.Div):
+            return operator.truediv(left, right)
+    raise ValueError("Unsupported expression")
+
+
+def string_to_float(expression):
     try:
-        result = float(string)
-    except ValueError:
-        operators = ['+', '-', '*', '/']
-        for operator in operators:
-            if operator in string:
-                values = string.split(operator)
-                if len(values) == 2:
-                    try:
-                        num1 = float(values[0])
-                        num2 = float(values[1])
-                        if operator == '+':
-                            result = num1 + num2
-                        elif operator == '-':
-                            result = num1 - num2
-                        elif operator == '*':
-                            result = num1 * num2
-                        elif operator == '/':
-                            result = num1 / num2
-                    except ValueError:
-                        raise ValueError("Invalid input string")
-                    break
-        else:
-            raise ValueError("Invalid input string")
-    return result
+        node = ast.parse(expression, mode='eval')
+        result = safe_eval(node)
+        return float(result)
+    except Exception as e:
+        raise ValueError(f"Invalid expression: {expression}") from e
 
 
 def get_total():
@@ -119,14 +121,14 @@ async def money(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def spend(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = get_user(update.message.from_user)
-    amount = str_to_float(update.message.text.replace('/spend ', ""))
+    amount = string_to_float(update.message.text.replace('/spend ', ""))
     replace_money(name=user, amount=amount, is_split=True)
     await update.message.reply_text(get_total())
 
 
 async def spend_no_split(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = get_user(update.message.from_user)
-    amount = str_to_float(context.args[0])
+    amount = string_to_float(context.args[0])
     replace_money(name=user, amount=amount, is_split=False)
     await update.message.reply_text(get_total())
 
@@ -135,9 +137,13 @@ async def payjor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(pay_jor())
 
 
+async def get_address(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(addrs)
+
+
 BOT_TOKEN = '6178516544:AAHHplpEDdaZRM_nxG1-Lq3YHtwIO1n5DsQ'
 WEBAPP_HOST = '0.0.0.0'
-addrs = r"Flat G, 21/F, Tower 1, The Yoho Hubm No.1 Long Lok Road, Yuen Long, N.T., HK";
+addrs = r"Flat G, 21/F, Tower 1, The Yoho Hubm No.1 Long Lok Road, Yuen Long, N.T., HK"
 
 if __name__ == '__main__':
     print("HELLO BOT START")
@@ -155,5 +161,5 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('score', score))
     application.add_handler(CommandHandler('spend', spend))
     application.add_handler(CommandHandler('spend_no_split', spend_no_split))
-    application.add_handler(CommandHandler('address', addrs))
+    application.add_handler(CommandHandler('address', get_address))
     application.run_polling()
